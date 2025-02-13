@@ -23,9 +23,6 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-
-      - name: Build the image
-        run: docker build -t backend-server:v1 .
       
       - name: Google Artifact Registry Build & Push
         uses: piotr-krusinski/action-google-artifact-registry@v1.0
