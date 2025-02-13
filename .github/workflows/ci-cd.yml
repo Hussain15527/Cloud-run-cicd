@@ -40,9 +40,7 @@ jobs:
         run: gcloud auth list
 
       - name: Configure Docker for GAR
-        run: |
-          echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | gcloud auth activate-service-account --key-file=-
-          gcloud auth configure-docker ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
+        run: gcloud auth activate-service-account --key-file=project.json
 
       - name: Build and tag Docker image
         uses: docker/build-push-action@v4
