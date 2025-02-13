@@ -30,3 +30,4 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/cloudrun/backend-server:v1
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
