@@ -31,10 +31,13 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:v0.11.2-rootless # Or latest
 
-      - name: Login to Google Cloud
+      - name: Login
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+
+      - name: Test gcloud
+        run: gcloud auth list
 
       - name: Configure Docker for GAR
         run: |
