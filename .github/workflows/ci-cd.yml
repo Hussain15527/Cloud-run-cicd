@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   Testing:
     runs-on: ubuntu-latest
@@ -23,19 +24,9 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      
-      - name: "Docker auth"
-        run: |-
-          gcloud auth configure-docker ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev --quiet
-      - name: Google Artifact Registry Build & Push
-        uses: piotr-krusinski/action-google-artifact-registry@v1.0
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
         with:
-          google_project_id: ${{ secrets.GOOGLE_PROJECT_ID }}
-          google_artifact_registry_region: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}
-          google_artifact_registry_hostname: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_HOSTNAME }}
-          google_artifact_registry_name: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_NAME }}
-          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
-          dockerfile: '../../'
-          image_name: backend-server
-          tag_list: v1
-          
+          context: .
+          push: true
+          tags: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/cloudrun/backend-server:v1
