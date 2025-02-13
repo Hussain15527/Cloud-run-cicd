@@ -25,4 +25,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build the image
-        run: docker build -t backend-server .
+        run: docker build -t backend-server:v1 .
+      
+      - name: Push the image to Artifcat Registry
+        uses: piotrkrusinski/action-google-artifact-registry@v1.0
+        with:
+          google_project_id: ${{ secrets.GOOGLE_PROJECT_ID }}
+          google_artifact_registry_region: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}
+          google_artifact_registry_hostname: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_HOSTNAME }}
+          google_artifact_registry_name: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_NAME }}
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+          dockerfile: '../../'
+          image_name: backend-server
+          tag_list: v1
+          
