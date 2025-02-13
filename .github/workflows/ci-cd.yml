@@ -24,6 +24,9 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
       
+      - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev --quiet
       - name: Google Artifact Registry Build & Push
         uses: piotr-krusinski/action-google-artifact-registry@v1.0
         with:
