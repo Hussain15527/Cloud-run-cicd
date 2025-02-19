@@ -4,26 +4,30 @@ on:
   push:
     branches:
       - main
+  pull:
+    branches:
+      - main
 env:
   PROJECT_ID: github-actions-451404
   REGION: asia-south1
   GAR_LOCATION: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry
 
 jobs:
-  # Testing:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout the repository
-  #       uses: actions/checkout@v3
-  #     - name: Setup the node enviroment
-  #       uses: actions/setup-node@v2
-  #       with: 
-  #         node-version: 18
-  #     - name: Install dependencies
-  #       run: npm install
-  #     - name: Run the test
-  #       run: npm test
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Setup the node enviroment
+        uses: actions/setup-node@v2
+        with: 
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Run the test
+        run: npm test
   build-and-push-to-gcr:
+    needs: Testing
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
