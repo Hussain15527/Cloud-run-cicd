@@ -65,10 +65,11 @@ jobs:
     steps:
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ env.APP_NAME }} \
-            --region ${{ env.REGION }} \
-            --image ${{ env.GAR_LOCATION }}/backend:${{ github.sha }} \
+          gcloud run deploy "$APP_NAME" \
+            --region "$REGION" \
+            --image "$GAR_LOCATION/backend:${{ github.sha }}" \
             --platform "managed" \
-            --service-account ${{ env.SERVICE_ACCOUNT_EMAIL }} \
-            --port 8080 \ 
+            --service-account "$SERVICE_ACCOUNT_EMAIL" \
+            --port 8080 \
             --quiet
+        shell: bash 
