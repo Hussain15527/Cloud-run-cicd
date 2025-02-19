@@ -47,7 +47,7 @@ jobs:
       
       
       - name: Build image
-        run: docker build . --tag ${{ env.GAR_LOCATION }}
+        run: docker build . --tag ${{ env.GAR_LOCATION }}/backend
 
       - name: Push image
-        run: docker push ${{ env.GAR_LOCATION }}
+        run: docker push ${{ env.GAR_LOCATION }}/backend
