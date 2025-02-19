@@ -20,18 +20,18 @@ jobs:
   #     - name: Run the test
   #       run: npm test
   build-and-push-to-gcr:
-  runs-on: ubuntu-latest
-  permissions:
-    contents: 'read'
-    id-token: 'write'
-  steps:
-    - uses: actions/checkout@v3
-    - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
-      with:
-        gcloud_service_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64  }} # can be base64 encoded or plain text || not needed if you use google-github-actions/auth
-        registry: gcr.io
-        project_id: github-actions-451404  # Your Google Cloud Project ID
-        image_name: backend # Your image name
-        image_tag: latest,v1 # Your image tags.  Consider using ${{ github.sha }} for production.
-        dockerfile: ./Dockerfile  # Correct path: root of the repo
-        context: .            # Correct context: root of the repo
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
+        with:
+          gcloud_service_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64 }} # Can be base64 encoded or plain text || not needed if you use google-github-actions/auth
+          registry: gcr.io
+          project_id: github-actions-451404 # Your Google Cloud Project ID
+          image_name: backend # Your image name
+          image_tag: latest,v1 # Your image tags. Consider using ${{ github.sha }} for production.
+          dockerfile: ./Dockerfile # Correct path: root of the repo
+          context: . # Correct context: root of the repo
