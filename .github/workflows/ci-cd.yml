@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+env:
+  PROJECT_ID: github-actions-451404
+  REGION: asia-south1
+  GAR_LOCATION: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry
 
 jobs:
   # Testing:
@@ -26,12 +30,17 @@ jobs:
       id-token: 'write'
     steps:
       - uses: actions/checkout@v3
-      - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
         with:
-          gcloud_service_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64 }} # Can be base64 encoded or plain text || not needed if you use google-github-actions/auth
-          registry: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry
-          project_id: github-actions-451404 # Your Google Cloud Project ID
-          image_name: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry/backend # Your image name
-          image_tag: latest,v1 # Your image tags. Consider using ${{ github.sha }} for production.
-          dockerfile: ./Dockerfile # Correct path: root of the repo
-          context: . # Correct context: root of the repo
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
+      - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
