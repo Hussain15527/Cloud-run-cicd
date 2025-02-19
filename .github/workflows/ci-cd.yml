@@ -61,12 +61,13 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ env.APP_NAME }} \
-          --region ${{ env.REGION }} \
-          --image ${{ env.GAR_LOCATION }}/backend:${{ github.sha }} \
+          gcloud run deploy github-assignment-app \
+          --region asia-south1 \
+          --image asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry/backend:1a8b8262e795d419d2d00567fcf86c96e2f77ee2 \
           --platform "managed" \
-          --service-account ${{ env.SERVICE_ACCOUNT_EMAIL }} \
-          --port 8080 \
+          --service-account github-actions-assignment@github-actions-451404.iam.gserviceaccount.com \
+          --port 3000 \
+          --allow-unauthenticated \
           --quiet
 
   # Deploy-to-cloud-run:
