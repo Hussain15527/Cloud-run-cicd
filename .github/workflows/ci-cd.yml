@@ -16,21 +16,22 @@ env:
 
 
 jobs:
-  # Testing:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout the repository
-  #       uses: actions/checkout@v3
-  #     - name: Setup the node enviroment
-  #       uses: actions/setup-node@v2
-  #       with: 
-  #         node-version: 18
-  #     - name: Install dependencies
-  #       run: npm install
-  #     - name: Run the test
-  #       run: npm test
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Setup the node enviroment
+        uses: actions/setup-node@v2
+        with: 
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Run the test
+        run: npm test
 
   build-and-push-to-gcr:
+    needs: Testing
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -63,23 +64,9 @@ jobs:
         run: |
           gcloud run deploy github-assignment-app \
           --region asia-south1 \
-          --image asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry/backend:1a8b8262e795d419d2d00567fcf86c96e2f77ee2 \
+          --image asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry/backend:${{ github.sha }} \
           --platform "managed" \
           --service-account github-actions-assignment@github-actions-451404.iam.gserviceaccount.com \
           --port 3000 \
           --allow-unauthenticated \
           --quiet
-
-  # Deploy-to-cloud-run:
-  #   needs: build-and-push-to-gcr
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy to Cloud Run
-  #       run: |
-  #         gcloud run deploy github-assignment-app \
-  #         --region asia-south1 \
-  #         --image asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry/backend:1a8b8262e795d419d2d00567fcf86c96e2f77ee2 \
-  #         --platform "managed" \
-  #         --service-account github-actions-assignment@github-actions-451404.iam.gserviceaccount.com \
-  #         --port 3000 \
-  #         --quiet
