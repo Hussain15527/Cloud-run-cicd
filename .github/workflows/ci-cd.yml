@@ -19,19 +19,19 @@ jobs:
   #       run: npm install
   #     - name: Run the test
   #       run: npm test
-  build-and-push:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Google Artifact Registry Build & Push
-        uses: piotrkrusinski/action-google-artifact-registry@v1.0 # Replace with a specific tag like v1.0.0
-        with:
-          google_project_id: github-actions-451404
-          google_artifact_registry_region: asia-south1
-          google_artifact_registry_hostname: asia-south1-docker.pkg.dev
-          google_artifact_registry_name: github-actions-registry
-          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64 }} # See explanation below
-          dockerfile: ./Dockerfile # Or the path to your Dockerfile
-          image_name: my-image-name # Choose a descriptive name for your image
-          tag_list: version_1.0 master 20231024_123456 # Or use ${{ github.sha }} for the commit SHA
-          build_args: "" # Add any build arguments if needed (e.g., ARG VERSION=1.2.3)
+  build-and-push-to-gcr:
+  runs-on: ubuntu-latest
+  permissions:
+    contents: 'read'
+    id-token: 'write'
+  steps:
+    - uses: actions/checkout@v3
+    - uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
+      with:
+        gcloud_service_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64  }} # can be base64 encoded or plain text || not needed if you use google-github-actions/auth
+        registry: gcr.io
+        project_id: github-actions-451404  # Your Google Cloud Project ID
+        image_name: backend # Your image name
+        image_tag: latest,v1 # Your image tags.  Consider using ${{ github.sha }} for production.
+        dockerfile: ./Dockerfile  # Correct path: root of the repo
+        context: .            # Correct context: root of the repo
