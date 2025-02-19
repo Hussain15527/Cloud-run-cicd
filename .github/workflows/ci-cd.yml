@@ -54,11 +54,11 @@ jobs:
       
       
       - name: Build image
-        run: docker build . --tag ${{ env.GAR_LOCATION }}/backend
+        run: docker build . --tag ${{ env.GAR_LOCATION }}/backend:${{ github.sha }}
 
       - name: Push image
-        run: docker push ${{ env.GAR_LOCATION }}/backend
-        
+        run: docker push ${{ env.GAR_LOCATION }}/backend:${{ github.sha }}
+
   Deploy-to-cloud-run:
     needs: build-and-push-to-gcr
     runs-on: ubuntu-latest
