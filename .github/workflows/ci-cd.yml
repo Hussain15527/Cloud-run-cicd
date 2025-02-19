@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Google Artifact Registry Build & Push
-        uses: piotrkrusinski/action-google-artifact-registry@[version tag] # Replace with a specific tag like v1.0.0
+        uses: piotrkrusinski/action-google-artifact-registry@v1.0 # Replace with a specific tag like v1.0.0
         with:
           google_project_id: github-actions-451404
           google_artifact_registry_region: asia-south1
