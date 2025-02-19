@@ -7,10 +7,13 @@ on:
   pull_request:
     branches:
       - main
+
 env:
-  PROJECT_ID: github-actions-451404
-  REGION: asia-south1
-  GAR_LOCATION: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry
+  PROJECT_ID: github-actions-451404  # Your Google Cloud Project ID
+  REGION: asia-south1           # Your Cloud Run region
+  GAR_LOCATION: asia-south1-docker.pkg.dev/github-actions-451404/github-actions-registry # Your GAR location
+  SERVICE_ACCOUNT_EMAIL: github-actions-assignment@github-actions-451404.iam.gserviceaccount.com # Your service account email
+  APP_NAME: github-assignment-app # Your Cloud Run service name
 
 jobs:
   Testing:
@@ -18,15 +21,16 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - name: Setup the node enviroment
+      - name: Setup the node environment
         uses: actions/setup-node@v2
-        with: 
-          node-version: 18
+        with:
+          node-version: 18 # Or your preferred Node.js version
       - name: Install dependencies
         run: npm install
       - name: Run the test
         run: npm test
-  build-and-push-to-gcr:
+
+  build-and-push:
     needs: Testing
     runs-on: ubuntu-latest
     permissions:
@@ -37,7 +41,7 @@ jobs:
       - id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}" # Store your service account key in GitHub Secrets
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
@@ -48,10 +52,43 @@ jobs:
       - name: "Docker auth"
         run: |-
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      
-      
-      - name: Build image
-        run: docker build . --tag ${{ env.GAR_LOCATION }}/backend
 
-      - name: Push image
-        run: docker push ${{ env.GAR_LOCATION }}/backend
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: image=moby/buildkit:v0.11.1-rootless # Or latest version
+
+      - name: Build and push image
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 --push \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+            backend . --tag ${{ env.GAR_LOCATION }}/backend:${{ github.sha }} # Replace 'backend' with your Dockerfile context if needed
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+        id-token: 'write' # Needed for gcloud
+    steps:
+      - uses: actions/checkout@v3 # Might be needed for config files etc.
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}" # Store your service account key in GitHub Secrets
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.APP_NAME }} \
+            --region ${{ env.REGION }} \
+            --image ${{ env.GAR_LOCATION }}/backend:${{ github.sha }} \
+            --platform "managed" \
+            --service-account ${{ env.SERVICE_ACCOUNT_EMAIL }} \
+            --port 3000 \ # Replace 3000 with the actual port your application uses
+            --quiet \
+            --allow-unauthenticated # Remove this after initial testing!
