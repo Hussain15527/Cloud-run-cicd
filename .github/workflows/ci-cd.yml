@@ -23,31 +23,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Google Artifact Registry Build & Push
+        uses: piotrkrusinski/action-google-artifact-registry@[version tag] # Replace with a specific tag like v1.0.0
         with:
-          driver-opts: image=moby/buildkit:v0.11.2-rootless # Or latest
-
-      - name: Login
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.SERVICE_ACCOUNT_KEY }}
-
-      - name: Test gcloud
-        run: gcloud auth list
-
-      - name: Configure Docker for GAR
-        run: gcloud auth activate-service-account --key-file={{ secrets.SERVICE_ACCOUNT_KEY }}
-
-      - name: Build and tag Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile  # If your Dockerfile is not named "Dockerfile" or not in the root directory
-          tags: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/${{ secrets.GOOGLE_ARTIFACT_REGISTRY_NAME }}:${{ github.sha }}
-          push: true
-          cache-from: type=local,dest=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          google_project_id: github-actions-451404
+          google_artifact_registry_region: asia-south1
+          google_artifact_registry_hostname: asia-south1-docker.pkg.dev
+          google_artifact_registry_name: github-actions-registry
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY_BASE64 }} # See explanation below
+          dockerfile: ./Dockerfile # Or the path to your Dockerfile
+          image_name: my-image-name # Choose a descriptive name for your image
+          tag_list: version_1.0 master 20231024_123456 # Or use ${{ github.sha }} for the commit SHA
+          build_args: "" # Add any build arguments if needed (e.g., ARG VERSION=1.2.3)
